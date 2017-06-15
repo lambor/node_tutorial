@@ -35,6 +35,27 @@ if ('development' == app.get('env')) {
     app.use(express.errorHandler());
 }
 
+app.use(function(req,res,next){
+    res.locals['user'] = req.session['user'];
+
+    var error = req.session['error'];
+    if(error && error.length) res.locals['error'] = error;
+    else res.locals['error'] = null;
+    req.session['error'] = null;
+
+    var success = req.session['success'];
+    if(success && success.length) res.locals['success'] = success;
+    else res.locals['success'] = null;
+    req.session['success'] = null;
+
+    next();
+});
+
+app.use(function(req,res,next){
+    res.locals['page'] = req.path.replace(/\//g, '_');
+    next();
+});
+
 app.get('/', routes.index);
 app.get('/u/:user',routes.user);
 app.post('/post',routes.post);
